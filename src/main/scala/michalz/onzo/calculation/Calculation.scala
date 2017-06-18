@@ -15,7 +15,8 @@ case class AverageCalculation(precondition: Precondition) extends Calculation {
     val (t, q) = dataStream.filter(precondition.test).foldLeft((0, BigDecimal(0))) {
       (total, item) => (total._1 + 1, total._2 + item.consumption)
     }
-    q / t
+
+    if(t == 0) 0 else q / t
   }
 }
 
