@@ -6,7 +6,7 @@ import scala.io.Source
 
 object DataStreamBuilder {
 
-  def withDataStream(resourceName: String)(code: Stream[SensorRead] => Any): Any = {
+  def withDataStream[Result](resourceName: String)(code: Stream[SensorRead] => Result): Result = {
     val src = Source.fromInputStream(getClass.getResourceAsStream(resourceName))
     try {
       val stream = src.getLines().toStream.drop(1).map(SensorRead.fromCSVLine).collect {

@@ -18,19 +18,23 @@ class CalculationSpec extends FlatSpec with Matchers {
   }
 
   "TotalCalculation" should "calculate total from all elements" in {
-    TotalCalculation(allMatchPrecondition).calculate(dataStream) should be (BigDecimal(6))
+    val calc = dataStream.foldLeft[Calculation](TotalCalculation(allMatchPrecondition))((c, e) => c.update(e))
+    calc.result should be (BigDecimal(6))
   }
 
   it should "return 0 if all elements are discarded" in {
-    TotalCalculation(discardAllPrecondition).calculate(dataStream) should be (BigDecimal(0))
+    val calc = dataStream.foldLeft[Calculation](TotalCalculation(discardAllPrecondition))((c, e) => c.update(e))
+    calc.result should be (BigDecimal(0))
   }
 
   "AverageCalculation" should "calculate average from all emenets" in {
-    AverageCalculation(allMatchPrecondition).calculate(dataStream) should be (BigDecimal(2))
+    val calc = dataStream.foldLeft[Calculation](AverageCalculation(allMatchPrecondition))((c, e) => c.update(e))
+    calc.result should be (BigDecimal(2))
   }
 
   it should "return 0 if all elements are discarded" in {
-    AverageCalculation(discardAllPrecondition).calculate(dataStream) should be (BigDecimal(0))
+    val calc = dataStream.foldLeft[Calculation](AverageCalculation(discardAllPrecondition))((c, e) => c.update(e))
+    calc.result should be (BigDecimal(0))
   }
 
 

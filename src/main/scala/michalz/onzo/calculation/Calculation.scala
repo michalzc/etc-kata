@@ -3,20 +3,25 @@ package michalz.onzo.calculation
 import michalz.onzo.model.SensorRead
 
 trait Calculation {
-  def calculate(dataStream: Stream[SensorRead]): BigDecimal
+  def update(element: SensorRead): Calculation
+  def result: BigDecimal
 }
 
-case class TotalCalculation(precondition: Precondition) extends Calculation {
-  override def calculate(dataStream: Stream[SensorRead]): BigDecimal = dataStream.filter(precondition.test).map(_.consumption).sum
+case class TotalCalculation(precondition: Precondition, result: BigDecimal = 0) extends Calculation {
+
+  override def update(element: SensorRead): Calculation =
+    if(precondition.test(element)) copy(result = result + element.consumption)
+    else this
 }
 
-case class AverageCalculation(precondition: Precondition) extends Calculation {
-  override def calculate(dataStream: Stream[SensorRead]): BigDecimal = {
-    val (t, q) = dataStream.filter(precondition.test).foldLeft((0, BigDecimal(0))) {
-      (total, item) => (total._1 + 1, total._2 + item.consumption)
-    }
+case class AverageCalculation(precondition: Precondition, sum: BigDecimal = 0, numberOfElements: Long = 0) extends Calculation {
 
-    if(t == 0) 0 else q / t
-  }
+  override def update(element: SensorRead): Calculation =
+    if(precondition.test(element)) copy(sum = sum + element.consumption, numberOfElements = numberOfElements + 1)
+    else this
+
+    override def result: BigDecimal =
+      if(numberOfElements > 0) sum / numberOfElements
+      else 0
 }
 
